@@ -70,7 +70,7 @@ function checkGameStatus() {
 	// if winning
 	for (let r = 0; r < GRID_SIZE; r++) {
 		for (let c = 0; c < GRID_SIZE; c++) {
-			if (grid[r][c] == 32) {
+			if (grid[r][c] == 2048) {
 				setTimeout(() => showMessage("You win!"), 100);
 				return;
 			}

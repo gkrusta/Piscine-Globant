@@ -40,18 +40,25 @@ export function addRandomCell() {
 	} else {
 		newValue = 4;
 	}
-
-	grid[randomCell.r][randomCell.c] = newValue
+	if (empty.length != 0)
+		grid[randomCell.r][randomCell.c] = newValue;
 }
 
 export function render() {
 	const cells = gridContainer.querySelectorAll('.cell')
+
+	function getTitleClass(value) {
+		if (value == 0)
+			return 'pos-0';
+		return 'pos-' + value;
+	}
 
 	for (let r = 0; r < GRID_SIZE; r++) {
 		for (let c = 0; c < GRID_SIZE; c++) {
 			const idx = r * GRID_SIZE + c; // gives number from 0 t0 15
 			const value = grid[r][c]
 			cells[idx].textContent = value == 0 ? '' : value;
+			cells[idx].className = 'cell ' + getTitleClass(value);
 		}
 	}
 }

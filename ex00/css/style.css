@@ -84,3 +84,15 @@ body {
   border-radius: 5px;
   cursor: pointer;
 }
+
+.pos-2    { background: #9b84c9; color: #3b0b54; }
+.pos-4    { background: #9d73ca; color: #3b0b54; }
+.pos-8    { background: #814db1; color: #2a0036; }
+.pos-16   { background: #765297; color: #ffffff; }
+.pos-32   { background: #67309b; color: #ffffff; }
+.pos-64   { background: #7326bb; color: #ffffff; }
+.pos-128  { background: #6604c1; color: #ffffff; }
+.pos-256  { background: #540a9a; color: #ffffff; }
+.pos-512  { background: #3e195c; color: #ffffff; }
+.pos-1024  { background: #260842; color: #ffffff; }
+.pos-2048  { background: #21013b; color: #ffffff; }

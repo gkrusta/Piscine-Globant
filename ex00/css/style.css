@@ -47,3 +47,40 @@ body {
   align-items: center;
   justify-content: center;
 }
+
+.hidden {
+  display: none !important;
+}
+
+#message-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.message-box {
+  background: #f1ecd1;
+  padding: 20px 30px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 24px;
+  color: #4c0241;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.message-box button {
+  margin-top: 15px;
+  padding: 8px 16px;
+  background: #8f7a66;
+  color: #4c0241;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}

@@ -1,13 +1,13 @@
+import { handleKeyPress } from './input.js'
+
 export const GRID_SIZE = 4
-
-export let rid = [] // hold grid values
-
-const gridContainer = document.querySelector('.grid-container') // find grid container 
+export let grid = []
+export let score = 0;
+const gridContainer = document.querySelector('.grid-container')
 
 
 function createGrid() {
 	gridContainer.innerHTML = ''
-
 	grid = Array(4).fill().map(() => Array(4).fill(0));
 	
 	for (let d = 0; d < GRID_SIZE * GRID_SIZE; d++) {
@@ -44,7 +44,7 @@ export function addRandomCell() {
 	grid[randomCell.r][randomCell.c] = newValue
 }
 
-function render() {
+export function render() {
 	const cells = gridContainer.querySelectorAll('.cell')
 
 	for (let r = 0; r < GRID_SIZE; r++) {
@@ -56,36 +56,50 @@ function render() {
 	}
 }
 
+export function mergeLine(line) {
+	line = line.filter(num => num != 0)
+
+	for (let i = 0; i < line.length - 1; i++) {
+		if (line[i] !== 0 && line[i] === line[i + 1]) {
+			line[i] *= 2;
+			score += line[i];
+			document.getElementById('score').textContent = score;
+			line[i + 1] = 0;
+		}
+	}
+	line = line.filter(num => num != 0);
+	while (line.length < GRID_SIZE) {
+		line.push(0);
+	}
+	return line;
+}
+
+
+export function showMessage(text) {
+	console.log(document.getElementById('message-text'));
+	const overlay = document.getElementById('message-overlay');
+	const msg = document.getElementById('message-text');
+
+	msg.textContent = text;
+	overlay.classList.remove('hidden');
+	document.removeEventListener('keydown', handleKeyPress);
+}
+
 function initGame() {
+	score = 0;
+	document.getElementById('score').textContent = score;
 	createGrid()
 	addRandomCell()
 	addRandomCell()
 	render()
 }
 
+document.getElementById('restart-btn-overlay').addEventListener('click', () => {
+	const overlay = document.getElementById('message-overlay');
+	overlay.classList.add('hidden');
+	initGame();
+	document.addEventListener('keydown', handleKeyPress);
+});
+
 window.onload = initGame;
 document.getElementById('restart-btn').addEventListener('click', initGame);
-
-function moveUp() {
-  for (let c = 0; c < GRID_SIZE; c++) {
-    let col = [];                       
-
-    // Collect all non-zero numbers in this column from top to bottom
-    for (let r = 0; r < GRID_SIZE; r++) {
-      if (grid[r][c] !== 0) col.push(grid[r][c]);
-    }
-
-    // Pad with zeros at the end so the column stays length 4
-    // (this "slides" numbers up and leaves empty spaces at the bottom)
-    while (col.length < GRID_SIZE) col.push(0);
-
-    // Write the compacted column back into the grid (top to bottom)
-    for (let r = 0; r < GRID_SIZE; r++) grid[r][c] = col[r];
-  }
-
-  // After a move, spawn a new random tile (2 or 4) in an empty spot
-  addRandomCell();
-
-  // Redraw the board so the changes appear on screen
-  render();
-}

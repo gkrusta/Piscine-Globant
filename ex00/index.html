@@ -8,14 +8,20 @@
 </head>
 <body>
 	<div class="game-container">
-	<h1>2048</h1>
-	<div class="score-container">
-	<span>Score: <span id="score">0</span></span>
-	<button id="restart-btn">Restart</button>
-	</div>
-	<div class="grid-container">
-	<!-- The grid filled by JavaScript -->
-	</div>
+		<h1>2048</h1>
+		<div class="score-container">
+			<span>Score: <span id="score">0</span></span>
+			<button id="restart-btn">Restart</button>
+		</div>
+		<div class="grid-container">
+			<!-- The grid filled by JavaScript -->	
+		</div>
+		<div id="message-overlay" class="hidden">
+			<div class="message-box">
+				<p id="message-text"></p>
+				<button id="restart-btn-overlay">Restart</button>
+			</div>
+		</div>
 	</div>
 	<script type="module" src="js/game.js"></script>
 	<script type="module" src="js/input.js"></script>

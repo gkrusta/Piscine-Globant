@@ -3,6 +3,9 @@
 Simple 2048 clone used for the Piscine Globant exercise.
 
 
+<div align="center">
+  <img src="images/2048_2.png" alt="Standard Version">
+</div>
 
 ## Description
 A minimal implementation of the 2048 game using plain JavaScript, HTML and CSS. 
@@ -16,6 +19,11 @@ A minimal implementation of the 2048 game using plain JavaScript, HTML and CSS.
 Controls: arrow keys to move. 
 
 Use the restart button to reset the game.
+
+<div align="center">
+  <img src="images/2048_1.png" alt="Standard Version">
+</div>
+
 
 ## Project structure
 - index.html

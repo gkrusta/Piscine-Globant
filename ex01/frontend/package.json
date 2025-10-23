@@ -1,0 +1,11 @@
+{
+  "name": "imagegallery-frontend",
+  "scripts": {
+    "build": "tsc",
+    "start": "http-server dist -p 8080"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "http-server": "^14.1.1"
+  }
+}

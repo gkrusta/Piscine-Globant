@@ -1,17 +1,21 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import router from "./auth";
+
+const app = express();
+app.use("/auth", router);
 
 dotenv.config();
-const app = express();
 const PORT = 3000;
 
 app.use(cors()); // Allow all origins
+app.use(express.json());
 app.options('*', cors())
 
 app.get('/api/search', async (req, res) => {
   try {
-    const q = (req.query.query as string) || 'ranodom';
+    const q = (req.query.query as string) || 'random';
     const page = req.query.page || '1';
     const per_page = req.query.per_page || '10';
     const accessKey = process.env.UNSPLASH_CLIENT_ID;
@@ -36,7 +40,6 @@ app.get('/api/search', async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
-
 
 app.listen(PORT, () => {
   console.log(`Backend is listening on port ${PORT}`);

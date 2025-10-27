@@ -11,8 +11,6 @@ RUN npx tsc
 COPY index.html ./
 COPY css ./css
 
-RUN cp dist/*.js .
-
 RUN npm install -g http-server
 
 EXPOSE 8080

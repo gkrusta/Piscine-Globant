@@ -1,16 +1,17 @@
 import express from 'express';
 import dotenv from 'dotenv';
-// import cors from 'cors';
-// app.use(cors()); // Allow all origins
+import cors from 'cors';
 
 dotenv.config();
 const app = express();
 const PORT = 3000;
 
+app.use(cors()); // Allow all origins
+app.options('*', cors())
 
 app.get('/api/search', async (req, res) => {
   try {
-    const q = (req.query.query as string) || 'random';
+    const q = (req.query.query as string) || 'ranodom';
     const page = req.query.page || '1';
     const per_page = req.query.per_page || '10';
     const accessKey = process.env.UNSPLASH_CLIENT_ID;

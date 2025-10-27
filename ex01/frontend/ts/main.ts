@@ -12,28 +12,40 @@ const searchBtn = document.getElementById("searchBtn")!;
 const searchInput = document.getElementById("searchInput") as HTMLInputElement;
 const gallery = document.getElementById("gallery")!;
 
-searchBtn.addEventListener("click", async () => {
-  const query = searchInput.value.trim() || "nature";
+if (searchBtn) {
+  searchBtn.addEventListener("click", async () => {
+    const query = searchInput.value.trim() || "nature";
 
-  // call backend (port 3000)
-  const response = await fetch(`http://localhost:3000/api/search?query=${query}`);
-  const data = await response.json();
+    // call backend (port 3000)
+    const response = await fetch(`http://localhost:3000/api/search?query=${encodeURIComponent(query)}`);
+    const data = await response.json();
 
-  // clear old photos
-  gallery.innerHTML = "";
+    // clear old photos
+    gallery.innerHTML = "";
 
-  // show new photos
-  data.results.forEach((photo: any) => {
-    const img = document.createElement("img");
-    img.src = photo.small;
-    img.alt = photo.alt || "Photo";
-    img.style.width = "150px";
-    img.style.margin = "5px";
-    gallery.appendChild(img);
+    // pick up to 10 random distinct photos
+    const results = Array.isArray(data.results) ? data.results.slice() : [];
+    // shuffle (Fisher-Yates)
+    for (let i = results.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [results[i], results[j]] = [results[j], results[i]];
+    }
+    const selected = results.slice(0, 10);
+
+    // show new photos
+    selected.forEach((photo: any, idx: number) => {
+      const img = document.createElement("img");
+      img.src = photo.small;
+      img.alt = photo.alt || `Photo ${idx + 1}`;
+      img.classList.add('gallery-img'); // styling + animation from CSS
+      // add slight stagger using inline style for animation delay
+      img.style.animationDelay = `${(idx % 5) * 0.3}s`;
+      gallery.appendChild(img);
+    });
   });
-});
+}
 
 window.addEventListener("DOMContentLoaded", () => {
   searchInput.value = "nature";
-  searchBtn.click();
+  searchBtn?.click();
 });

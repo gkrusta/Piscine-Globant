@@ -2,10 +2,15 @@
   "name": "imagegallery-frontend",
   "scripts": {
     "build": "tsc",
+    "build:css": "tailwindcss -i ./css/style.css -o ./dist/style.css --watch",
     "start": "http-server dist -p 8080"
+
   },
   "devDependencies": {
     "typescript": "^5.6.3",
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "autoprefixer": "^10.4.13",
+    "postcss": "^8.3.0",
+    "tailwindcss": "^2.1.2"
   }
 }

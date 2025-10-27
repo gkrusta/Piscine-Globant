@@ -4,12 +4,13 @@ COPY package*.json ./
 RUN npm install
 
 COPY tsconfig.json ./
+COPY tailwind.config.js postcss.config.js ./
 COPY ts ./ts
-
-RUN npx tsc
-
-COPY index.html ./
 COPY css ./css
+COPY index.html ./
+
+RUN npx tailwindcss -i ./css/style.css -o ./dist/style.css
+RUN npx tsc
 
 RUN npm install -g http-server
 

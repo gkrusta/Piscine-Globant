@@ -3,13 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <title>Unsplash Gallery</title>
-  <link rel="stylesheet" href="./css/style.css">
+  <link rel="stylesheet" href="./dist/style.css">
 </head>
 <body>
-  <h1>Unsplash Gallery</h1>
-  <input id="searchInput" placeholder="Search photos..." />
-  <button id="searchBtn">Search</button>
-  <div id="gallery"></div>
+  <header class="w-full bg-blue-600 text-white p-4 flex justify-between items-center">
+    <h1 class="text-xl font-bold">Image Gallery</h1>
+    <nav class="space-x-4">
+      <button id="homeBtn" class="hover:bg-blue-500 px-3 py-1 rounded">Home</button>
+      <button id="favoritesBtn" class="hover:bg-blue-500 px-3 py-1 rounded">Favorites</button>
+      <button id="loginBtn" class="hover:bg-blue-500 px-3 py-1 rounded">Login</button>
+    </nav>
+  </header>
+
+  <main class="pt-8 px-4">
+
+    <form class="max-w-md mx-auto mb-8 flex">
+      <input type="search" id="searchInput" placeholder="Search photos..." 
+             class="flex-1 p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+      <button type="submit" id="searchBtn" 
+              class="bg-blue-600 text-white px-4 rounded-r-lg hover:bg-blue-700">Search</button>
+    </form>
+
+    <div id="gallery" class="w-full max-w-5xl mx-auto flex flex-wrap justify-center gap-4"></div>
+  </main>
 
   <script type="module" src="./dist/main.js"></script>
 </body>

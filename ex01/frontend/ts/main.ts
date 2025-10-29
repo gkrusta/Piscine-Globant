@@ -1,4 +1,5 @@
 import { logout, isLoggedIn } from "./auth.js";
+const BACKEND = "http://localhost:3000";
 
 const loginBtn = document.getElementById("loginBtn")!;
 const logoutBtn = document.getElementById("logoutBtn")!;
@@ -16,27 +17,93 @@ loginBtn.addEventListener("click", () => {
 logoutBtn.addEventListener("click", logout);
 
 // check if logged in
-if (await isLoggedIn()) {
-  loginBtn.style.display = "none";
-  logoutBtn.style.display = "inline";
-}
 
-// search btn
-searchBtn.addEventListener("click", async () => {
-  const q = searchInput.value.trim() || "nature";
-  const res = await fetch(`http://localhost:3000/api/search?query=${q}`);
-  const data = await res.json();
+function renderPhotos(photos: any[], loggedIn: boolean) {
   gallery.innerHTML = "";
-  data.results.forEach((photo: any) => {
+  photos.forEach((photo) => {
+    const wrap = document.createElement("div");
+    wrap.className = "relative inline-block";
+
     const img = document.createElement("img");
     img.src = photo.urls.small;
-    img.addEventListener("click", async () => {
-      await fetch(`http://localhost:3000/api/like/${photo.id}`, {
+    img.alt = photo.alt_description || "photo";
+    img.classList.add("rounded","shadow-md");
+
+    const heart = document.createElement("button");
+    heart.innerHTML = "♡";
+    heart.className = "absolute top-2 right-2 bg-white/80 rounded-full px-2 py-1 text-lg hover:text-red-600";
+
+    heart.addEventListener("click", async () => {
+      if (!loggedIn) {
+        alert("Please log in to like photos.");
+        return;
+      }
+      const res = await fetch(`${BACKEND}/api/like/${photo.id}`, {
         method: "POST",
         credentials: "include",
       });
-      alert("Photo liked!");
+      if (res.ok) heart.innerHTML = "❤️";
+      else alert("Failed to like (maybe rate-limited).");
     });
-    gallery.appendChild(img);
+
+    wrap.appendChild(img);
+    wrap.appendChild(heart);
+    gallery.appendChild(wrap);
   });
+}
+
+loginBtn.addEventListener("click", () => {
+  window.location.href = `${BACKEND}/auth/login`;
 });
+
+logoutBtn.addEventListener("click", async () => {
+  await fetch(`${BACKEND}/auth/logout`, { method: "POST", credentials: "include" });
+  loginBtn.classList.remove("hidden");
+  logoutBtn.classList.add("hidden");
+  // reload random after logout
+  loadRandom();
+});
+
+favoritesBtn.addEventListener("click", async () => {
+  const logged = await isLoggedIn();
+  if (!logged) {
+    alert("Please log in to view favorites.");
+    return;
+  }
+  const r = await fetch(`${BACKEND}/api/favorites`, { credentials: "include" });
+  const data = await r.json();
+  renderPhotos(data.results ?? [], true);
+});
+
+searchBtn.addEventListener("click", async (e) => {
+  e.preventDefault(); // stop form reload
+  const q = searchInput.value.trim();
+  const r = await fetch(`${BACKEND}/api/search?query=${encodeURIComponent(q)}`);
+  const data = await r.json();
+  const logged = await isLoggedIn();
+  renderPhotos(data.results ?? [], logged);
+});
+
+async function loadRandom() {
+  const r = await fetch(`${BACKEND}/api/search`); // no query so random
+  const data = await r.json();
+  const logged = await isLoggedIn();
+  renderPhotos(data.results ?? [], logged);
+  //  header buttons
+  if (logged) { loginBtn.classList.add("hidden"); logoutBtn.classList.remove("hidden"); }
+  else { loginBtn.classList.remove("hidden"); logoutBtn.classList.add("hidden"); }
+}
+
+window.addEventListener("DOMContentLoaded", loadRandom);
+// load random 10 photos at the beginning
+// window.addEventListener("DOMContentLoaded", async () => {
+//   const res = await fetch("http://localhost:3000/api/search");
+//   const data = await res.json();
+//   gallery.innerHTML = "";
+//   data.results.forEach((photo: any) => {
+//     const img = document.createElement("img");
+//     img.src = photo.urls.small;
+//     img.classList.add('gallery-img');
+//     gallery.appendChild(img);
+//   });
+// });

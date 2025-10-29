@@ -6,7 +6,8 @@ export async function logout() {
   window.location.reload();
 }
 
-export async function isLoggedIn(): Promise<boolean> {
-  const cookies = document.cookie.split(";");
-  return cookies.some((c) => c.trim().startsWith("jwt="));
+async function isLoggedIn(): Promise<boolean> {
+  const r = await fetch(`${BACKEND}/auth/me`, { credentials: "include" }); // 👈 add here
+  const data = await r.json();
+  return !!data.loggedIn;
 }

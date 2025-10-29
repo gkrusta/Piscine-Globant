@@ -34,42 +34,55 @@ export async function handleLoginSuccess() {
 // Unsplash redirects back here
 router.get("/callback", async (req, res) => {
   const code = req.query.code as string;
-  if (!code) return res.status(400).send("Missing code");
-
-  const body = {
-    client_id: getEnv("UNSPLASH_CLIENT_ID"),
-    client_secret: getEnv("UNSPLASH_CLIENT_SECRET"),
-    redirect_uri: getEnv("UNSPLASH_REDIRECT_URI"),
-    code,
-    grant_type: "authorization_code",
-  };
+  if (!code) return res.status(400).json({ error: "Missing authorization code" });
 
   try {
-    const r = await fetch(UNSPLASH_TOKEN_URL, {
+    const body = {
+      client_id: process.env.UNSPLASH_CLIENT_ID,
+      client_secret: process.env.UNSPLASH_CLIENT_SECRET,
+      redirect_uri: process.env.UNSPLASH_REDIRECT_URI,
+      code,
+      grant_type: "authorization_code",
+    };
+
+    const r = await fetch("https://unsplash.com/oauth/token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
-    const data: any= await r.json();
 
-    if (!data.access_token) {
-      return res.status(500).json({ error: "Failed to get access token" });
+    const data = await r.text(); // 👈 change to text() to log raw output
+    console.log("Unsplash token response:", data);
+
+    if (!r.ok) {
+      return res.status(r.status).send(data);
     }
 
-    handleLoginSuccess();
-
-    // Create a JWT for user
     const token = jwt.sign(
-      { access_token: data.access_token },
+      { access_token: JSON.parse(data).access_token },
       process.env.JWT_SECRET!,
-      { expiresIn: "2h" }
+      { expiresIn: "1h" }
     );
 
-    // Send JWT as a cookie and redirect to frontend
-    res.cookie("jwt", token, { httpOnly: true, sameSite: "lax" });
+    // Send as http-only cookie
+    res.cookie("jwt", token, { httpOnly: true, sameSite: "lax", secure: false });
     res.redirect("http://localhost:8080/");
   } catch (err) {
-    res.status(500).json({ error: "Token exchange failed" });
+    console.error("Token exchange failed:", err);
+    res.status(500).json({ error: "Token exchange failed", details: String(err) });
+  }
+});
+
+
+router.get("/me", (req, res) => {
+  const token = req.cookies.jwt;
+  if (!token) return res.json({ loggedIn: false });
+
+  try {
+    jwt.verify(token, process.env.JWT_SECRET!);
+    res.json({ loggedIn: true });
+  } catch (err) {
+    res.json({ loggedIn: false });
   }
 });
 
@@ -81,4 +94,3 @@ router.post("/logout", (req, res) => {
 
 export default router;
 
-// UNSPLASH_REDIRECT_URI=http://localhost:3000/auth/callback

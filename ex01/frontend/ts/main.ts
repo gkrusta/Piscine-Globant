@@ -7,17 +7,20 @@ const favoritesBtn = document.getElementById("favoritesBtn")!;
 const searchBtn = document.getElementById("searchBtn")!;
 const searchInput = document.getElementById("searchInput") as HTMLInputElement;
 const gallery = document.getElementById("gallery")!;
+const homeBtn = document.getElementById("homeBtn")!;
 
 // login
 loginBtn.addEventListener("click", () => {
-  window.location.href = "http://localhost:3000/auth/login";
+  window.location.href = `${BACKEND}/auth/login`;
 });
 
-// logout
-logoutBtn.addEventListener("click", logout);
+// home
+homeBtn.addEventListener("click", async () => {
+  searchInput.value = "";
+  loadRandom();
+});
 
-// check if logged in
-
+// render photos
 function renderPhotos(photos: any[], loggedIn: boolean) {
   gallery.innerHTML = "";
   photos.forEach((photo) => {
@@ -33,16 +36,21 @@ function renderPhotos(photos: any[], loggedIn: boolean) {
     heart.innerHTML = "♡";
     heart.className = "absolute top-2 right-2 bg-white/80 rounded-full px-2 py-1 text-lg hover:text-red-600";
 
+    let liked = false;
     heart.addEventListener("click", async () => {
       if (!loggedIn) {
-        alert("Please log in to like photos.");
+        alert("You can't like photos.");
         return;
       }
+      const method = liked ? "DELETE" : "POST";
       const res = await fetch(`${BACKEND}/api/like/${photo.id}`, {
-        method: "POST",
+        method,
         credentials: "include",
       });
-      if (res.ok) heart.innerHTML = "❤️";
+      if (res.ok) {
+        liked = !liked;
+        heart.innerHTML = liked ? "❤️" : "♡";
+      }  
       else alert("Failed to like (maybe rate-limited).");
     });
 
@@ -52,29 +60,31 @@ function renderPhotos(photos: any[], loggedIn: boolean) {
   });
 }
 
-loginBtn.addEventListener("click", () => {
-  window.location.href = `${BACKEND}/auth/login`;
-});
-
+// logout
 logoutBtn.addEventListener("click", async () => {
   await fetch(`${BACKEND}/auth/logout`, { method: "POST", credentials: "include" });
   loginBtn.classList.remove("hidden");
   logoutBtn.classList.add("hidden");
   // reload random after logout
+  searchInput.value = "";
   loadRandom();
 });
 
+// favs
 favoritesBtn.addEventListener("click", async () => {
   const logged = await isLoggedIn();
   if (!logged) {
     alert("Please log in to view favorites.");
     return;
   }
+  searchBtn.classList.add("hidden");
+  searchInput.classList.add("hidden");
   const r = await fetch(`${BACKEND}/api/favorites`, { credentials: "include" });
   const data = await r.json();
-  renderPhotos(data.results ?? [], true);
+  renderPhotos(data.results ?? [], false);
 });
 
+// search
 searchBtn.addEventListener("click", async (e) => {
   e.preventDefault(); // stop form reload
   const q = searchInput.value.trim();
@@ -84,7 +94,10 @@ searchBtn.addEventListener("click", async (e) => {
   renderPhotos(data.results ?? [], logged);
 });
 
+// load gallery
 async function loadRandom() {
+  searchBtn.classList.remove("hidden");
+  searchInput.classList.remove("hidden");
   const r = await fetch(`${BACKEND}/api/search`); // no query so random
   const data = await r.json();
   const logged = await isLoggedIn();

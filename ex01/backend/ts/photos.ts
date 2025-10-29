@@ -6,22 +6,28 @@ dotenv.config();
 
 const router = express.Router();
 
+
+// JWT from cookies
 function getAccessToken(req: express.Request): string | null {
-  const m = req.headers.cookie?.match(/jwt=([^;]+)/);
-  if (!m) return null;
+  const token = req.cookies?.jwt;
+  if (!token) return null;
+
   try {
-    const decoded = jwt.verify(m[1], process.env.JWT_SECRET!) as any;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
     return decoded.access_token as string;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
+// Middleware to protect routes
 function requireAuth(req: express.Request, res: express.Response, next: express.NextFunction) {
   const t = getAccessToken(req);
   if (!t) return res.status(401).json({ error: "Not logged in" });
+
   (req as any).access_token = t;
   next();
 }
-
 
 // Public random/search photos
 router.get("/search", async (req, res) => {
@@ -45,14 +51,13 @@ router.get("/search", async (req, res) => {
   }
 });
 
-
-// Favorite photo
-router.post("/like/:id", requireAuth, async (req, res) => {
+// Like / unlike a photo
+router.all("/like/:id", requireAuth, async (req, res) => {
   const accessToken = (req as any).access_token;
   const photoId = req.params.id;
-
+  const method = req.method;
   const r = await fetch(`https://api.unsplash.com/photos/${photoId}/like`, {
-    method: "POST",
+    method,
     headers: { Authorization: `Bearer ${accessToken}` },
   });
 
@@ -63,11 +68,13 @@ router.post("/like/:id", requireAuth, async (req, res) => {
 // Get liked photos
 router.get("/favorites", requireAuth, async (req, res) => {
   const accessToken = (req as any).access_token;
-  const r = await fetch(`https://api.unsplash.com/users/me/likes`, {
+
+  const r = await fetch(`https://api.unsplash.com/users/gkrusta/likes`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
-  const data = await r.json();
-  res.json(data);
+  const data: any = await r.json();
+  const results = Array.isArray(data) ? data : data.results;
+  res.json({ results });
 });
 
 export default router;

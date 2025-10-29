@@ -24,12 +24,6 @@ router.get("/login", (_req, res) => {
   res.redirect(url);
 });
 
-// hides and displays btns after login
-export async function handleLoginSuccess() {
-  document.getElementById("loginBtn")!.classList.add("hidden");
-  document.getElementById("logoutBtn")!.classList.remove("hidden");
-}
-
 
 // Unsplash redirects back here
 router.get("/callback", async (req, res) => {
@@ -51,7 +45,7 @@ router.get("/callback", async (req, res) => {
       body: JSON.stringify(body),
     });
 
-    const data = await r.text(); // 👈 change to text() to log raw output
+    const data = await r.text();
     console.log("Unsplash token response:", data);
 
     if (!r.ok) {

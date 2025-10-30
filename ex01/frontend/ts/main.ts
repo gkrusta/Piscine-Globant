@@ -30,32 +30,30 @@ function renderPhotos(photos: any[], loggedIn: boolean) {
     const img = document.createElement("img");
     img.src = photo.urls.small;
     img.alt = photo.alt_description || "photo";
+    img.classList.add('gallery-img'); 
     img.classList.add("rounded","shadow-md");
-
-    const heart = document.createElement("button");
-    heart.innerHTML = "♡";
-    heart.className = "absolute top-2 right-2 bg-white/80 rounded-full px-2 py-1 text-lg hover:text-red-600";
-
-    let liked = false;
-    heart.addEventListener("click", async () => {
-      if (!loggedIn) {
-        alert("You can't like photos.");
-        return;
-      }
-      const method = liked ? "DELETE" : "POST";
-      const res = await fetch(`${BACKEND}/api/like/${photo.id}`, {
-        method,
-        credentials: "include",
-      });
-      if (res.ok) {
-        liked = !liked;
-        heart.innerHTML = liked ? "❤️" : "♡";
-      }  
-      else alert("Failed to like (maybe rate-limited).");
-    });
-
     wrap.appendChild(img);
-    wrap.appendChild(heart);
+
+    if (loggedIn) {
+      const heart = document.createElement("button");
+      heart.innerHTML = "♡";
+      heart.className = "absolute top-2 right-2 bg-white/80 rounded-full px-2 py-1 text-lg hover:text-red-600";
+  
+      let liked = false;
+      heart.addEventListener("click", async () => {
+        const method = liked ? "DELETE" : "POST";
+        const res = await fetch(`${BACKEND}/api/like/${photo.id}`, {
+          method,
+          credentials: "include",
+        });
+        if (res.ok) {
+          liked = !liked;
+          heart.innerHTML = liked ? "❤️" : "♡";
+        }  
+        else alert("Failed to like (maybe rate-limited).");
+      });
+      wrap.appendChild(heart);
+    }
     gallery.appendChild(wrap);
   });
 }
@@ -108,15 +106,3 @@ async function loadRandom() {
 }
 
 window.addEventListener("DOMContentLoaded", loadRandom);
-// load random 10 photos at the beginning
-// window.addEventListener("DOMContentLoaded", async () => {
-//   const res = await fetch("http://localhost:3000/api/search");
-//   const data = await res.json();
-//   gallery.innerHTML = "";
-//   data.results.forEach((photo: any) => {
-//     const img = document.createElement("img");
-//     img.src = photo.urls.small;
-//     img.classList.add('gallery-img');
-//     gallery.appendChild(img);
-//   });
-// });
